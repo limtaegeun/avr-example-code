@@ -1,0 +1,15 @@
+#include <mega128.h>
+#include <delay.h>
+ 
+void main(void)
+{
+    DDRA = 0xFF;            // PORTA 출력으로 설정
+
+    while(1)
+    {
+        PORTA = 0xFF;       // 11111111 출력
+        delay_ms(1000);     // 시간지연 1초
+        PORTA = 0x00;       // 00000000 출력
+        delay_ms(1000);     // 시간지연 1초
+    }
+}
