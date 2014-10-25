@@ -1,0 +1,37 @@
+#include <mega128.h>
+#include <delay.h>
+#include <stdio.h>
+
+
+void main(void)
+{
+     int ad_val;
+     // usart 초기화
+    UCSR0A = 0x0;			
+    UCSR0B = 0b00011000;		//bit 4 :  Recieve Enable, bit 3 : Transmitter Enable
+    					//bit 6,7 : 송,수신 인터럽트 사용시 Set 시켜줘야 한다.
+    UCSR0C = 0b10000110;		//bit 6 : 비동기 방식 bit 5,4 : 패리티(오류검출) 비트 미사용
+					//bit 3 : stop bit - 1 bit
+    UBRR0H = 0;
+    UBRR0L = 103;    			// 103 이면 baudrate : 9600  error rate : 0.2%
+					// 송 수신부 간에 설정이 동일하게 레지스터 셋팅을 하여야 한다.
+   
+    
+    DDRC = 0xff;
+    DDRF = 0x00;
+    
+    ADMUX = 0x0;			//ADC 0번 핀 사용
+    ADCSRA = 0x87;
+    delay_ms(5);
+    
+    while(1){
+            ADCSRA = 0xC7;				// AD 변환 시작
+            while((ADCSRA & 0x10) == 0);		// 변환 완료 flag bit가 Set될때까지 기다림
+            ad_val = (int)ADCL + ((int)ADCH << 8);	// 변환 값 읽어오기
+            //ad_val = ADCW;  가능하다 ← 이게 더 편하다.
+      printf("%d\r",ad_val);				// stdio.h 를 include 하고 printf문등의 출력함수 사용이 가능해진다.
+            PORTA = ad_val;				// AD 변환 값을 PORTA(led 8개가 있는 포트)
+							// 로 확인 할 수 있다.						
+            delay_ms(300);
+            }
+}
