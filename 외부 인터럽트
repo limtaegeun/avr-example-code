@@ -1,0 +1,19 @@
+#include <mega128.h>
+
+unsigned char led = 0x00;
+
+void main()
+{
+	DDRD = 0x00;		// INT0~3 입력설정
+	DDRE = 0x00;		// INT4~7 입력설정 (데이터시트 2page Pin Configurations 참고)
+
+EIMSK = 0b00000001;	// INT0 인에이블
+EICRA = 0b00000010;	// INT0 Rising Edge 때 INT0 동작
+//EICRB = 0b00000000;	// INT4~7 동작 방식 설정  여기선 쓰지 않으므로 0
+SREG = 0x80;		// 전역 인터럽트 Enable 설정
+}
+interrupt [EXT_INT0] void external_int0(void)		//외부 인터럽트 0번이 걸릴 시 
+{
+	 led = led ^ 0xFF;          			// led 토글 (xor 비트연산)
+        PORTA = led;              			// led값을 PORTA에 넣어줘야 LED켜짐
+}
