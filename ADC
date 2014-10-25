@@ -1,0 +1,20 @@
+#include <mega128.h>
+
+void main()
+{
+    while(1)
+       {
+        ADCSRA = 0b11000111;                   // ADEN=1, ADSC = 1 변환 시작
+        while((ADCSRA & 0x10) == 0);        // ADIF=1이 될 때까지 대기
+						// AD 변환하는데에 시간이 걸리기 때문에 
+// AD 변환 완료 되면 Set이 되는 Flag bit를 계속        확인하고 있는다.
+        adc_value = (int)ADCL + ((int)ADCH << 8);    // A/D 변환값 읽기
+        // adc_value = ADCW; 로도 ADC값을 읽어 올 수 있다.
+	 // ADCW는 (ADCH + ADCL)의 16비트 엑세스 레지스터명입니다.
+ // 코드비젼과 AVRstudio는 ADCW로 사용하면 되고, 어떤 컴파일러는 ADC로 읽기도 합니다.
+
+
+        f_val = (float)adc_value * 5.0/ 1024;    // 전압값으로 변환
+        temp = (int)(f_val*100);			//100을 곱해 소숫점 짜리까지 정수로 표시.
+        }
+}  
