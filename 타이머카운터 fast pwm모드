@@ -1,0 +1,36 @@
+//timer/counter 0 fast pwm 모드 외부인터럽트 4,5번 핀에 스위치를 달아 ocr값에 따른 파형의 변화를 볼 수 있다.
+#include <mega128.h>
+
+unsigned int pwm = 0x9C;
+
+void main()
+{
+    //외부 인터럽트 셋팅
+    EIMSK = 0x70;     //외부INT4~5   interrupt Enable
+    EICRA = 0x00;     //외부INT0~3
+    EICRB = 0x0f;     //외부 인터럽트4,5 하강 에지시 발생  
+
+   //타이머/카운터0 셋팅
+    TIMSK = 0x01;   //timer0 오버플로우
+    TCCR0 = 0x6B;   //fast pwm모드 , 8분주비, 비교매치에서 0C0 클리어,TOP에서 셋
+    TCNT0 = 0x38;   //56
+    OCR0 = pwm;    //TCNT0 가 OCR0 값까지 Set (1) 되어있다. 
+   
+    SREG = 0x80;   // 전역 인터럽트 Enable
+
+} 
+
+// 외부 인터럽트 요구 5 서비스 루틴(SW2 처리)
+interrupt [EXT_INT4] void external_int4(void)
+{
+    if(pwm > 0x05) pwm -= 0x14;     //0x05보다 크면 감소
+     OCR0 = pwm ;                   //OCR0 값 갱신 
+}
+
+// 외부 인터럽트 요구 5 서비스 루틴(SW2 처리)
+
+interrupt [EXT_INT5] void external_int5(void)
+{                  
+    if(pwm < 0xf0) pwm += 0x14;     //0x3B보다 작으면 증가
+     OCR0 = pwm ;                   //OCR0 값 갱신 
+}
