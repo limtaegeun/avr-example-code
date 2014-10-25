@@ -1,0 +1,23 @@
+#include <mega128.h>
+unsigned int cnt=0;
+
+void main()
+{
+
+   TIMSK = 0b00000001;    // TOIE0 = 1; 타이머/카운터0 OVF 모드 인터럽트 인에이블
+    TCCR0 = 0b00000111;    // 일반모드, 프리스케일 = CK/1024
+    TCNT0 = 0b00000000;    // 타이머/카운터0 레지스터 초기값 == 0;
+ 
+    SREG = 0b10000000;    // 전역 인터럽트 인에이블 비트 I 셋
+}
+
+// 1/16us x 1024 x 256 = 16.384ms
+interrupt [TIM0_OVF] void timer_int0(void)		//타이머/카운터0 인터럽트 문
+{                    
+    cnt++;
+    if(cnt == 31) {  					// 16.384ms x 31 = 0.5sec
+        led = led ^ 0xFF;          			// led 토글 (xor연산)
+        PORTA = led;              			// PORTA에 넣어줘야 LED켜짐
+        cnt = 0;					// cnt 0으로 초기화
+    }
+}
